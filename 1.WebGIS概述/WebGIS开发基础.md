@@ -1,12 +1,12 @@
 # **WebGIS开发基础**
 
-1.GIS定义
+## 1.GIS定义
 
 地理信息系统GIS(Geographic Information System)是一种特定的十分重要的空间信息系统，它是在计算机软硬件的支持下，以采集、存储、管理、检索、分析和描述空间物体的**空间数据**及与之相关的**属性数据**，并回答用户问题等为主要任务的计算机系统。
 
-2.WebGIS定义
+## 2.WebGIS定义
 
-WebGIS(网络地理信息系统)，即Web+GIS,侠义来说就是基于B/S(Browser/Server，浏览器/服务器)架构通过Web浏览器访问的GIS。相对于C/S(Client/Server,客户机/服务器)架构，B/S架构具有部署方便、使用简单、便于推广等优势。
+WebGIS(网络地理信息系统)，即Web+GIS,侠义来说就是基于B/S架构(Browser/Server，浏览器/服务器架构)通过Web浏览器访问的GIS。相对于C/S(Client/Server,客户机/服务器)架构，B/S架构具有部署方便、使用简单、便于推广等优势。
 
 例如：
 
@@ -14,7 +14,7 @@ WebGIS(网络地理信息系统)，即Web+GIS,侠义来说就是基于B/S(Browse
 
 常见WebGIS开源平台：
 
-![](常见开源WebGIS平台.png)
+![](images/常见开源WebGIS平台.png)
 
 **基于JavaEE的解决方案**：GeoServer(服务器)+uDig(桌面软件)+Tomcat(中间件web服务器)+PostGIS|MySQL空间扩展(数据库)+Openlayers(前端JS)
 
@@ -26,17 +26,17 @@ WebGIS(网络地理信息系统)，即Web+GIS,侠义来说就是基于B/S(Browse
 
 (3)数据层：数据源可以使用公共的在线地图服务(如百度地图、天地图、Google地图等)，一般将它们作为地图，或者使用GIS服务器发布自己的地图服务数据，以及开放格式的文件数据。针对空间是数据的存储，一般可选择开源的空间数据库，如使用PostgreSQL作为关系型数据库，用其扩展模块PostGIS存储空间数据。
 
-3.WebGIS开发所需的技术
+## 3.WebGIS开发所需的技术
 
-![](WebGIS开发所需的技术.png)
+![](images/WebGIS开发所需的技术.png)
 
-4.WebGIS的框架结构
+## 4.WebGIS的框架结构
 
-![](WebGIS的框架结构.png)
+![](images/WebGIS的框架结构.png)
 
-5.WebGIS开发的GIS背景知识
+## 5.WebGIS开发的GIS背景知识
 
-![](WebGIS开发的GIS背景知识.png)
+![](images/WebGIS开发的GIS背景知识.png)
 
 ★矢量地图和瓦片地图各具特点和优势，可以结合使用。矢量地图是实时生成的，可以对地图数据进行在线编辑、查询分析，具有空间关系属性，能支持网络分析、空间分析等应用。瓦片地图是预裁剪的缓存图片集，具有网络加载速度较快、效果较好的特点，常作为底图使用。
 
