@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>鹰眼地图的使用</title>
+    <link rel="stylesheet" href="css/ol.css" />
+    <script src="js/ol.js"></script>
+    <style type="text/css">
+        #mapCon {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+        }
+        /*=S 自定义鹰眼样式 */
+        .ol-custom-overviewmap, .ol-custom-overviewmap.ol-uncollapsible {
+            bottom: auto;
+            left: auto;
+            /* 右侧显示 */
+            right: 0;
+            /* 顶部显示 */
+            top: 0;
+        }
+        /* 鹰眼控件展开时控件外框的样式 */
+        .ol-custom-overviewmap:not(.ol-collapsed) {
+            border: 1px solid black;
+        }
+        /* 鹰眼控件中地图容器样式 */
+        .ol-custom-overviewmap .ol-overviewmap-map {
+            border: none;
+            width: 300px;
+        }
+        /* 鹰眼控件中显示当前窗口中主图区域的边框 */
+        .ol-custom-overviewmap .ol-overviewmap-box {
+            border: 2px solid red;
+        }
+        /* 鹰眼控件展开时其控件按钮图标的样式 */
+        .ol-custom-overviewmap:not(.ol-collapsed) button {
+            bottom: auto;
+            left: auto;
+            right: 1px;
+            top: 1px;
+        }
+        /*=E 自定义鹰眼样式 */
+    </style>
+</head>
+<body>
+<div id="mapCon">
+</div>
+<script type="text/javascript">
+    "use strict";
+    ////实例化鹰眼控件（OverviewMap）,最简单的默认样式鹰眼控件
+    //var overviewMapControl = new ol.control.OverviewMap();
+    //实例化鹰眼控件（OverviewMap）,自定义样式的鹰眼控件
+    var overviewMapControl = new ol.control.OverviewMap({
+        //鹰眼控件样式（see in overviewmap-custom.html to see the custom CSS used）
+        //className: 'ol-overviewmap ol-custom-overviewmap',
+        //鹰眼中加载同坐标系下不同数据源的图层
+        layers: [
+            new ol.layer.Tile({
+                title: "天地图矢量图层",
+                source: new ol.source.XYZ({
+                    url: "http://t0.tianditu.com/DataServer?T=vec_w&x={x}&y={y}&l={z}&tk=b74ca9a5dbd96fab6338ab9d239180fb",
+                    wrapX: false
+                })
+            }),
+            new ol.layer.Tile({
+                title: "天地图矢量图层注记",
+                source: new ol.source.XYZ({
+                    url: "http://t0.tianditu.com/DataServer?T=cva_w&x={x}&y={y}&l={z}&tk=b74ca9a5dbd96fab6338ab9d239180fb",
+                    wrapX: false
+                })
+            })
+        ],
+        //鹰眼控件展开时功能按钮上的标识（网页的JS的字符编码）
+        collapseLabel: '\u00BB',
+        //鹰眼控件折叠时功能按钮上的标识（网页的JS的字符编码）
+        label: '\u00AB',
+        //初始为展开显示方式
+        collapsed: false,
+        view: new ol.View({
+            //地图初始中心点
+            center: [0, 0],
+            //地图初始显示级别
+            zoom: 1,
+            //参考系设置
+            projection: "EPSG:4326"
+        })
+    });
+    //实例化map对象加载地图
+    var map = new ol.Map({
+        //地图容器div的id
+        target: 'mapCon',
+        //地图容器中加载的图层
+        layers: [
+            //加载瓦片图层数据
+            new ol.layer.Tile({
+                title: "天地图矢量图层",
+                source: new ol.source.XYZ({
+                    url: "http://t0.tianditu.com/DataServer?T=vec_w&x={x}&y={y}&l={z}&tk=b74ca9a5dbd96fab6338ab9d239180fb",
+                    wrapX: false
+                })
+            }),
+            new ol.layer.Tile({
+                title: "天地图矢量图层注记",
+                source: new ol.source.XYZ({
+                    url: "http://t0.tianditu.com/DataServer?T=cva_w&x={x}&y={y}&l={z}&tk=b74ca9a5dbd96fab6338ab9d239180fb",
+                    wrapX: false
+                })
+            })
+        ],
+        //地图视图设置
+        view: new ol.View({
+            //地图初始中心点
+            center: [0, 0],
+            //地图初始显示级别
+            zoom: 1,
+            //参考系设置
+            projection: "EPSG:4326"
+        }),
+        //加载控件到地图容器中
+        //加载鹰眼控件
+        controls: ol.control.defaults().extend([overviewMapControl])
+    });
+</script>
+</body>
+</html>

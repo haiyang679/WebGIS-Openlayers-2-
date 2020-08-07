@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>比例尺控件</title>
+    <link rel="stylesheet" href="css/ol.css" />
+    <script src="js/ol.js"></script>
+    <style type="text/css">
+        #mapCon {
+            width: 100%;
+            height: 95%;
+            position: absolute;
+        }
+    </style>
+</head>
+<body>
+<div id="mapCon">
+</div>
+<script type="text/javascript">
+    "use strict";
+    //实例化比例尺控件（ScaleLine）
+    var scaleLineControl = new ol.control.ScaleLine({
+        //设置比例尺单位，degrees、imperial、us、nautical、metric（度量单位）
+        units: "metric"
+    });
+    //实例化map对象加载地图
+    var map = new ol.Map({
+        //地图容器div的id
+        target: 'mapCon',
+        //地图容器中加载的图层
+        layers: [
+            //加载瓦片图层数据
+            new ol.layer.Tile({
+                title: "天地图矢量图层",
+                source: new ol.source.XYZ({
+                    url: "http://t0.tianditu.com/DataServer?T=vec_w&x={x}&y={y}&l={z}&tk=b74ca9a5dbd96fab6338ab9d239180fb",
+                    wrapX: false
+                })
+            }),
+            new ol.layer.Tile({
+                title: "天地图矢量图层注记",
+                source: new ol.source.XYZ({
+                    url: "http://t0.tianditu.com/DataServer?T=cva_w&x={x}&y={y}&l={z}&tk=b74ca9a5dbd96fab6338ab9d239180fb",
+                    wrapX: false
+                })
+            })
+        ],
+        //地图视图设置
+        view: new ol.View({
+            //地图初始中心点
+            center: [0, 0],
+            //地图初始显示级别
+            zoom: 3,
+            //参考系设置
+            projection: "EPSG:4326"
+        }),
+        //加载控件到地图容器中
+        //加载比例尺控件
+        controls: ol.control.defaults().extend([scaleLineControl])
+    });
+</script>
+</body>
+</html>

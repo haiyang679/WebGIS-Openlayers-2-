@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>地图导航控件的使用</title>
+    <link rel="stylesheet" href="css/ol.css" />
+    <script src="js/ol.js"></script>
+    <style type="text/css">
+        #mapCon {
+            width: 100%;
+            height: 95%;
+            position: absolute;
+        }
+
+        #mapCon .ol-zoomslider {
+            background-color: transparent;
+            top: 2.3em;
+        }
+
+        #mapCon .ol-zoom-extent {
+            top: 280px;
+        }
+    </style>
+</head>
+<body>
+<div id="mapCon">
+    <div id="mouse-position"></div>
+</div>
+<script type="text/javascript">
+    "use strict";
+    //实例化map对象加载地图
+    var map = new ol.Map({
+        //地图容器div的id
+        target: 'mapCon',
+        //地图容器中加载的图层
+        layers: [
+            //加载瓦片图层数据
+            new ol.layer.Tile({
+                title: "天地图矢量图层",
+                source: new ol.source.XYZ({
+                    url: "http://t0.tianditu.com/DataServer?T=vec_w&x={x}&y={y}&l={z}&tk=b74ca9a5dbd96fab6338ab9d239180fb",
+                    wrapX: false
+                })
+            }),
+            new ol.layer.Tile({
+                title: "天地图矢量图层注记",
+                source: new ol.source.XYZ({
+                    url: "http://t0.tianditu.com/DataServer?T=cva_w&x={x}&y={y}&l={z}&tk=b74ca9a5dbd96fab6338ab9d239180fb",
+                    wrapX: false
+                })
+            })
+        ],
+        //地图视图设置
+        view: new ol.View({
+            //地图初始中心点
+            center: [0, 0],
+            //地图初始显示级别
+            zoom: 3,
+            //参考系设置
+            projection: "EPSG:4326"
+        })
+    });
+    //实例化ZoomSlider控件并加载到地图容器中
+    var zoomslider = new ol.control.ZoomSlider();
+    map.addControl(zoomslider);
+    //实例化zoomToExtent控件并加载到地图容器中
+    var zoomToExtent = new ol.control.ZoomToExtent({
+        extent: [
+            93.7598, 52.1387,
+            129.9707, 68.3691
+        ]
+    });
+    map.addControl(zoomToExtent);
+    //鼠标位置控件
+    //实例化鼠标位置控件(MousePosition)
+    var mousePositionControl = new ol.control.MousePosition({
+        //坐标格式
+        coordinateFormat:ol.coordinate.createStringXY(4),   //将坐标保留4位小数位，并转换为字符串
+        //地图投影坐标
+        projection:'EPSG:4326',
+        //坐标显示样式，默认为ol-mouse-position
+        className:'custom-mouse-position',
+        //显示鼠标位置信息的目标地图容器
+        target:document.getElementById('mouse-position'),
+        //未定义坐标的标记
+        undefinedHTML:'&nbsp;'       //鼠标离开地图时，显示空格
+    });
+    map.addControl(mousePositionControl);
+</script>
+</body>
+</html>

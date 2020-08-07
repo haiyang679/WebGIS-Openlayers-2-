@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>鼠标位置控件</title>
+    <link rel="stylesheet" href="css/ol.css" />
+    <script src="js/ol.js"></script>
+    <style type="text/css">
+        #mapCon {
+            width: 100%;
+            height: 95%;
+            position: absolute;
+        }
+        /* 鼠标位置控件层样式设置 */
+        #mouse-position {
+            float: left;
+            position: absolute;
+            bottom: 5px;
+            width: 200px;
+            height: 20px;
+            /*在地图容器中的层，要设置z-index的值让其显示在地图上层*/
+            z-index: 2000;
+        }
+        /* 鼠标位置信息自定义样式设置 */
+        .custom-mouse-position {
+            color: rgb(255,0,0);
+            font-size: 16px;
+            font-family: "微软雅黑";
+        }
+    </style>
+</head>
+<body>
+<div id="mapCon">
+    <div id="mouse-position">
+    </div>
+</div>
+<script type="text/javascript">
+    "use strict";
+
+    //实例化鼠标位置控件（MousePosition）
+    var mousePositionControl = new ol.control.MousePosition({
+        //坐标格式
+        coordinateFormat: ol.coordinate.createStringXY(4),
+        //地图投影坐标系（若未设置则输出为默认投影坐标系下的坐标）
+        projection: 'EPSG:4326',
+        //坐标信息显示样式类名，默认是'ol-mouse-position'
+        className: 'custom-mouse-position',
+        //显示鼠标位置信息的目标容器
+        target: document.getElementById('mouse-position'),
+        //未定义坐标的标记
+        undefinedHTML: '&nbsp;'
+    });
+
+    //实例化map对象加载地图
+    var map = new ol.Map({
+        //地图容器div的id
+        target: 'mapCon',
+        //地图容器中加载的图层
+        layers: [
+            //加载瓦片图层数据
+            new ol.layer.Tile({
+                title: "天地图矢量图层",
+                source: new ol.source.XYZ({
+                    url: "http://t0.tianditu.com/DataServer?T=vec_w&x={x}&y={y}&l={z}&tk=b74ca9a5dbd96fab6338ab9d239180fb",
+                    wrapX: false
+                })
+            }),
+            new ol.layer.Tile({
+                title: "天地图矢量图层注记",
+                source: new ol.source.XYZ({
+                    url: "http://t0.tianditu.com/DataServer?T=cva_w&x={x}&y={y}&l={z}&tk=b74ca9a5dbd96fab6338ab9d239180fb",
+                    wrapX: false
+                })
+            })
+        ],
+        //地图视图设置
+        view: new ol.View({
+            //地图初始中心点
+            center: [0, 0],
+            //地图初始显示级别
+            zoom: 3,
+            //参考系设置
+            projection: "EPSG:4326"
+        }),
+        //加载控件到地图容器中
+        controls: ol.control.defaults({//地图中默认控件
+            /* @type {ol.control.Attribution} */
+            attributionOptions: ({
+                //地图数据源信息控件是否可收缩,默认为true
+                collapsible: true
+            })
+        }).extend([mousePositionControl])//加载鼠标位置控件
+    });
+</script>
+</body>
+</html>
