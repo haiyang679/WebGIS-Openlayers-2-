@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>使用openlayers调用Arcgis Server REST的瓦片地图服务</title>
+    <link rel="stylesheet" href="css/ol.css" />
+    <script src="js/ol.js"></script>
+</head>
+<body>
+<!--创建地图容器、展示鼠标位置的div层并设置样式-->
+<div id="map">
+    <div id="mouse-position"></div><!--鼠标位置控件，用来显示鼠标所在位置的坐标-->
+</div>
+<script type="text/javascript">
+    //实例化鼠标位置控件(MousePosition)
+    var mousePositionControl = new ol.control.MousePosition({
+        //坐标格式
+        coordinateFormat:ol.coordinate.createStringXY(4),   //将坐标保留4位小数位，并转换为字符串
+        //地图投影坐标
+        projection:'EPSG:4326',
+        //坐标显示样式，默认为ol-mouse-position
+        className:'custom-mouse-position',
+        //显示鼠标位置信息的目标地图容器
+        target:document.getElementById('mouse-position'),
+        //未定义坐标的标记
+        undefinedHTML:'&nbsp;'       //鼠标离开地图时，显示空格
+    });
+
+    //实例化map对象并加载地图
+    var map = new ol.Map({
+        target: 'map',
+        layers: [],
+        view: new ol.View({
+            center:[11525111,3926411],
+            zoom:3
+        }),
+        //加载控件到地图容器中
+        controls:ol.control.defaults({}).extend([mousePositionControl])
+    });
+
+    //实例化ArcGIS Server REST瓦片地图图层
+    var arcGISSource = new ol.source.TileArcGISRest({
+        //arcgis server rest 服务瓦片地图服务接口参数的url
+        url:'http://localhost:6080/arcgis/rest/services/中国/MapServer',
+    });
+
+    var arcGISLayers = new ol.layer.Tile({
+        source:arcGISSource
+    });
+
+    //添加瓦片图层到地图
+    map.addLayer(arcGISLayers);
+
+</script>
+</body>
+</html>
