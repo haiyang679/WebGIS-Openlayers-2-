@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.openlayers.action.dao.St_rsvr_rDao">
+
+    <!--查询所有水库信息，查询出来的数据，先经过站码排序（即分组），再在各个组中用时间排序，方便之后Echart对数据进行可视化-->
+    <select id="findAll" resultMap="st_rsvr_rMap">
+        select
+            st_b.ZHANMA,
+            st_b."zhanming",
+            st_r.RZ,
+            st_r.W,
+            st_r.OTQ,
+            st_r.INQ,
+            TO_CHAR(st_r.TM, 'YYYY-MM-DD') AS TM,
+            st_b.DIZHI,
+            st_b.DONGJING,
+            st_b.BEIWEI
+        from ST_SITINFO_B st_b,st_rsvr_r st_r WHERE st_b.zhanma = st_r.stcd
+        ORDER BY st_b.ZHANMA,st_r.tm
+    </select>
+    
+    <resultMap id="st_rsvr_rMap" type="com.openlayers.action.entity.St_rsvr_r">
+        <id column="STCD" property="STCD"></id>
+        <result column="TM" property="TM"></result>
+        <result column="RZ" property="RZ"></result>
+        <result column="INQ" property="INQ"></result>
+        <result column="OTQ" property="OTQ"></result>
+        <result column="W" property="W"></result>
+        <association property="st_sitinfo_b" javaType="com.openlayers.action.entity.St_sitinfo_b">
+            <id column="ZHANMA" property="ZHANMA"></id>
+            <result column="zhanming" property="zhanming"></result>
+            <result column="DONGJING" property="DONGJING"></result>
+            <result column="BEIWEI" property="BEIWEI"></result>
+            <result column="HEMING" property="HEMING"></result>
+            <result column="ZHANLEI" property="ZHANLEI"></result>
+            <result column="DISHI" property="DISHI"></result>
+            <result column="FENJU" property="FENJU"></result>
+            <result column="DIZHI" property="DIZHI"></result>
+        </association>
+    </resultMap>
+
+    <!--根据站名查询水库信息-->
+    <select id="findSt_rsvr_rByZhanma" parameterType="String" resultMap="st_rsvr_rMap">
+        select
+            st_b.ZHANMA,
+            st_b."zhanming",
+            st_r.RZ,
+            st_r.W,
+            st_r.OTQ,
+            st_r.INQ,
+            TO_CHAR(st_r.TM, 'YYYY-MM-DD') AS TM,
+            st_b.DIZHI,
+            st_b.DONGJING,
+            st_b.BEIWEI
+        from ST_SITINFO_B st_b,st_rsvr_r st_r WHERE st_b.zhanma = st_r.stcd and zhanma = #{zhanma}
+    </select>
+
+</mapper>

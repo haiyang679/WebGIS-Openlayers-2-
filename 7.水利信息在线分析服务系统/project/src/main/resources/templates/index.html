@@ -1,0 +1,286 @@
+﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+    <title>水利信息在线分析服务系统</title>
+    <link href="css/jquery-ui.min.css" rel="stylesheet" type="text/css" />
+    <!--当前网页的样式文件-->
+    <link href="css/style.css" rel="stylesheet" type="text/css" />
+    <!-- 第三方jquery插件库 -->
+    <script src="js/jquery-1.11.2.min.js" type="text/javascript"></script>
+    <script src="js/jquery-ui.min.js" type="text/javascript"></script>
+    <script src="js/jquery.ui.datepicker-zh-CN.js" type="text/javascript"></script>
+    <!--OL5脚本库及样式文件-->
+    <script src="js/ol.js" type="text/javascript"></script>
+    <link href="css/ol.css" rel="stylesheet" type="text/css" />
+    <!--引入echarts-->
+    <script src="js/echarts.common.min.js" type="text/javascript"></script>
+    <script src="js/macarons.js" type="text/javascript"></script>
+    <!--引入bootstrap框架-->
+    <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" type="text/css" />
+    <script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js" type="text/javascript"></script>
+    <!--引入bootstrap-table插件-->
+    <link href="css/bootstrap-table.css" rel="stylesheet" type="text/css" />
+    <script src="js/bootstrap-table.js" type="text/javascript"></script>
+    <script src="js/bootstrap-table-zh-CN.js" type="text/javascript"></script>
+    <!--地图初始化脚本-->
+    <script src="js/Scripts/Init.js" type="text/javascript"></script>
+    <!--创建表格脚本-->
+    <script src="js/Scripts/Createtable.js" type="text/javascript"></script>
+    <!--表格交互脚本-->
+    <script src="js/Scripts/Interaction.js" type="text/javascript"></script>
+    <!--功能处理脚本-->
+    <script src="js/Scripts/MainFun.js" type="text/javascript"></script>
+    <!--边界范围-->
+    <script src="js/data/GXbound.js" type="text/javascript"></script>
+</head>
+<!--onload表示页面加载便立刻执行该函数-->
+<body onload="init()">
+    <!--判断浏览器-->
+    <script type="text/javascript">
+        /*(function(){})()是匿名函数,但是该函数没有赋值给任何变量，所以就没办法像普通函数那样随时调用
+            匿名函数在定义完成后立刻调用他
+            匿名函数前加!,表示对返回值的真假取反
+        */
+        !(function () {
+            //如果是ie11以下，则不加载页面
+            if (isIE()) {
+                alert("不支持IE低版本浏览器，请使用IE11或其他浏览器！");
+                //阻止页面加载
+                //windou.stop()用来停止页面载入，，非IE浏览器使用该方法
+                //IE浏览器用document.execCommand("Stop")来停止页面载入
+                window.stop ? window.stop() : document.execCommand("Stop");
+                return;
+            }
+        })()
+
+    </script>
+
+    <!-- 地图容器-->
+    <div id="map"><!--装载map的容器(本例中)-->
+        <div id="popup" class="ol-popup" ><!--popup的目标容器-->
+            <div id="popup-closer" class="ol-popup-closer"></div><!--popup的关闭按钮-->
+            <div id="popup-content"></div><!--popup的内容容器-->
+        </div>
+    </div>
+
+    <!--系统logo及功能模块面板-->
+    <div class="row hidden-xs" style="width:100%;">
+        <div class="col-md-4 col-md-offset-1" style="margin-left:50px;">
+            <img src="images/logo.png" class="img-responsive" alt="Cinque Terre" />
+        </div>
+    </div>
+
+    <div class=" funpanel" style="width:360px;right:30px;top:20px;position:absolute">
+        <ul class="list-group">
+            <li class="list-group-item" style="background-color:#fff">
+                <input type="checkbox" class="cbox" id="cbox_sq" onchange="changeSqtable()" /><label for="cbox_sq">实时水情</label>
+                <input type="checkbox" class="cbox" id="cbox_yq" onchange="changeYqtable()" style="margin-left:10px;" /><label for="cbox_yq">实时雨情</label>
+                <input type="checkbox" class="cbox" id="cbox_tf" onchange="changeTftable()" style="margin-left:10px;" /><label for="cbox_tf">台风路径</label>
+                <input type="checkbox" class="cbox" id="wxyt" onchange="wxytStateChange()" style="margin-left:10px;" /><label for="wxyt">卫星云图</label>
+            </li>
+        </ul>
+    </div>
+
+    <!--表格面板-->
+    <div class="containers col-md-1  result" id="resultpanel" style="display:none;top:80px;position:absolute;right:23px !important;">
+        <div id="tableclose" onclick="closeAll()"></div>
+        <ul class="nav nav-tabs" role="tablist">
+            <!--注意这里的#home与下面的div role="tabpanel" class="tab-pane active" id="home" 的id对应实现页签-->
+            <li role="presentation" class="tab-li" id="li_sq" style="display:none"><a href="#shuiqing" aria-controls="home" role="tab" data-toggle="tab">实时水情</a></li>
+            <li role="presentation" class="tab-li" id="li_yq" style="display:none"><a href="#yuqing" aria-controls="profile" role="tab" data-toggle="tab" onclick="">实时雨情</a></li>
+            <li role="presentation" class="tab-li" id="li_tf" style="display:none"><a href="#taifeng" aria-controls="messages" role="tab" data-toggle="tab" onclick="">台风路径</a></li>
+        </ul>
+        <!-- Tab panes -->
+        <div class="tab-content">
+            <!-- 实时水情start -->
+            <div role="tabpanel" class="tab-pane" id="shuiqing">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div id="" style="position:absolute;top:20px;">
+                            <input type="radio" id="radio_sk" name="shuiqing" style="margin-left:10px" checked="checked" onclick="showShuiku()" /><label for="radio_sk">水库</label>
+                            <input type="radio" id="radio_hl" name="shuiqing" class="" style="margin-left:20px" onclick="showHeliu()" /><label for="radio_hl">河流</label>
+                        </div>
+                        <div id="sqsk" style="display:none;">
+                            <table id="tb_shuiku" style=""></table>
+                        </div>
+
+                        <div id="sqhl" style="display:none">
+                            <table id="tb_heliu"></table>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+            <!-- 实时水情end -->
+            <!-- 实时雨情start -->
+            <div role="tabpanel" class="tab-pane" id="yuqing">
+                <div class="row">
+                    <div class="col-md-12">
+
+                        <div class="sqHeader" style="margin-top:5px;">雨量范围（单位：mm）</div>
+                        <div class="yqContent" style="height:70px;">
+                            <ul style="height:70px;">
+                                <li style="background: url('images/shishiyuqing/yq01.png') no-repeat;">
+                                    <input class="ylxxCheckbox" type="checkbox" value="10" id="r1" onchange="RainStateChange()" /><label for="r1">小于10</label>
+                                </li>
+                                <li style="background: url('images/shishiyuqing/yq02.png') no-repeat;">
+                                    <input class="ylxxCheckbox" type="checkbox" value="25" id="r2" onchange="RainStateChange()" /><label for="r2">[10,25)</label>
+                                </li>
+                                <li style="background: url('images/shishiyuqing/yq03.png') no-repeat;">
+                                    <input class="ylxxCheckbox" type="checkbox" value="50" id="r3" onchange="RainStateChange()" /><label for="r3">[25,50)</label>
+                                </li>
+                                <li style="background: url('images/shishiyuqing/yq04.png') no-repeat;">
+                                    <input class="ylxxCheckbox ylxxdefault" type="checkbox" value="100" checked="true" id="r4" onchange="RainStateChange()" /><label for="r4">[50,100)</label>
+                                </li>
+                                <li style="background: url('images/shishiyuqing/yq05.png') no-repeat;">
+                                    <input class="ylxxCheckbox" type="checkbox" value="250" id="r5" onchange="RainStateChange()" /><label for="r5">[100,250)</label>
+                                </li>
+                                <li style="background: url('images/shishiyuqing/yq06.png') no-repeat;">
+                                    <input class="ylxxCheckbox" type="checkbox" value="260" id="r6" onchange="RainStateChange()" /><label for="r6">250以上</label>
+                                </li>
+                            </ul>
+                        </div>
+
+
+                        <div style="position:absolute;top:100px;">
+                            <input type="radio" name="yuqing" id="radio_ylxx" style="margin-left:5px" checked="checked" onclick="showTb_Ylxx()" /><label for="radio_ylxx">雨量信息</label>
+                            <input type="radio" name="yuqing" id="radio_gszdyl" style="margin-left:25px" onclick="showTb_Gszdyl()" /><label for="radio_gszdyl">各市最大雨量</label>
+                            <input type="radio" name="yuqing" id="radio_ljtj" style="margin-left:25px" onclick="showTb_Ljtj()" /><label for="radio_ljtj">量级统计</label>
+                        </div>
+                        <div id="div_infoYlxx" style="display:none;margin-top:20px">
+                            <table id="tb_infoYlxx"></table>
+                        </div>
+
+                        <div id="div_infoGszdyl" style="display:none;margin-top:20px">
+                            <table id="tb_infoGszdyl"></table>
+                        </div>
+                        <div id="div_infoLjtj" style="display:none;margin-top:20px">
+                            <table id="tb_infoLjtj"></table>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <!-- 实时雨情end -->
+            <!--台风路径start -->
+            <div role="tabpanel" class="tab-pane" id="taifeng">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div style="position:absolute;top:15px;">
+                            <span class="label label-primary" style="font-size:100%">台风数据</span>
+                        </div>
+                        <div id="taifeng_info" style="display:none;margin-top:40px;height:90px;">
+                            <table id="tb_taifeng"></table>
+                        </div>
+
+                        <div class="tflj_label" style="position:absolute;top:130px;display:none;">
+                            <span class="label label-success" style="font-size:100%">台风路径</span>
+                        </div>
+                        <div id="taifeng_lujing" style="display:none;margin-top:30px">
+                            <table id="tb_taifenglujing"></table>
+                        </div>
+
+
+                    </div>
+                </div>
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+    <!--底图切换面板  传入的参数是底图的索引-->
+    <div id="layers" class="hidden-xs">
+        <div class="baselayer veclayer" onclick="changeLayer(0)">
+            <img src="images/layerchange/vector.png" style="height:100%;" />
+        </div>
+        <div class="baselayer imglayer" onclick="changeLayer(1)">
+            <img src="images/layerchange/image.png" style="height:100%;" />
+        </div>
+        <div class="baselayer terlayer" onclick="changeLayer(2)">
+            <img src="images/layerchange/terrain.png" style="height:100%;" />
+        </div>
+    </div>
+
+    <!--图例面板-->
+    <div id="legend_control_show" class="legend_control">
+        <span class="glyphicon glyphicon-minus pull-right pull-min" aria-hidden="true" onclick="legendToggle()" id="legToggle" style="padding-right:5px;"></span>
+        <div style="width: 100%; display: block;" class="legend_body legMax legMin">
+            <div class="legend_title">
+                <span class="u-bar" style="margin-top:0px;"></span>图例面板
+            </div>
+            <div id="legendItems">
+                <table class="lenendtb">
+                    <tbody>
+                        <tr>
+                            <td style=" padding-bottom: 10px;">
+
+                                <div id="ItemsTyphoon" style="display: block;">
+                                    <div id="lLegendItems" style="float:left;margin-left: 10px;">
+                                        <div class="row1">
+                                            <img class="legImg" src="images/tuli/zg.png" />中国
+                                        </div>
+                                        <div class="row1">
+                                            <img class="legImg" src="images/tuli/mg.png" />日本
+                                        </div>
+                                        <div class="row1">
+                                            <img class="legImg" src="images/tuli/tw.png" />中国台湾
+                                        </div>
+                                        <div class="row1">
+                                            <img class="legImg" src="images/tuli/usa.png" />美国
+                                        </div>
+                                        <div class="row1">
+                                            <img class="legImg" src="images/sssq-green.png" />安全水位
+                                        </div>
+                                        <div class="row1">
+                                            <img class="legImg" src="images/sssq-red.png" />超戒水位
+                                        </div>
+                                    </div>
+                                    <div id="rLegendItems" style="float: left; margin-right: 15px; margin-left: 15px; ">
+                                        <div class="row1">
+                                            <img class="legImg" src="images/tuli/Wind06.png" />热带低压
+                                        </div>
+                                        <div class="row1">
+                                            <img class="legImg" src="images/tuli/Wind05.png" />热带风暴
+                                        </div>
+                                        <div class="row1">
+                                            <img class="legImg" src="images/tuli/Wind04.png" />强烈热带风暴
+                                        </div>
+                                        <div class="row1">
+                                            <img class="legImg" src="images/tuli/Wind03.png" />台风
+                                        </div>
+                                        <div class="row1">
+                                            <img class="legImg" src="images/tuli/Wind02.png" />强台风
+                                        </div>
+                                        <div class="row1">
+                                            <img class="legImg" src="images/tuli/Wind01.png" />超强台风
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!--图例收起-->
+    <div id="legend_control_hide" class="legend_control" style="margin-bottom: 25px;display: none;background: none;">
+        <span class="glyphicon tag" aria-hidden="true" onclick="legendShow()" id="Span1" style="padding-right:5px;"></span>
+    </div>
+
+    <!--卫星云图-->
+    <div id="dialog" title="卫星云图">
+        <iframe id="wxytIframe" style="border:none"></iframe>
+    </div>
+
+</body>
+</html>

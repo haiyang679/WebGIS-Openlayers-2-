@@ -1,0 +1,33 @@
+<!DOCTYPE>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Ajax的使用</title>
+    <script src="js/jquery-1.11.2.min.js" type="text/javascript"></script>
+</head>
+<body>
+<script type="text/javascript">
+    function login(name,password){
+        $.ajax({
+            url:"/login",//url地址
+            dataType:"json",//返回的数据类型
+            type:"get",//发起请求的方式
+            data:{  //从前端传入的数据
+                'name':name,
+                'password':password
+            },
+            success:function(data) {
+                alert(data.newName+data.newPassword);  //输出更改后的数据
+                alert("更改成功");
+            },
+            error:function(){
+                alert('网络错误，请稍后再试！');
+            }
+        });
+    }
+    var name1= "靳海阳";
+    var password1 = "123456";
+</script>
+<button onclick="login(name1,password1)">登录，返回改变的数据</button>
+</body>
+</html>

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.openlayers.action.dao.St_soil_rDao">
+
+    <select id="findAll" resultMap="st_soil_rMap">
+        select
+            st_b."zhanming",
+            st_b.zhanma,
+            st_s.col007,
+            st_b.dizhi
+        from ST_SITINFO_B st_b,st_soil_r st_s WHERE st_b.zhanma = st_s.col001
+    </select>
+
+    <resultMap id="st_soil_rMap" type="com.openlayers.action.entity.St_soil_r">
+        <id column="COL001" property="COL001"></id>
+        <result column="COL002" property="COL002"></result>
+        <result column="COL007" property="COL007"></result>
+        <association property="st_sitinfo_b" javaType="com.openlayers.action.entity.St_sitinfo_b">
+            <id column="ZHANMA" property="ZHANMA"></id>
+            <result column="zhanming" property="zhanming"></result>
+            <result column="DONGJING" property="DONGJING"></result>
+            <result column="BEIWEI" property="BEIWEI"></result>
+            <result column="HEMING" property="HEMING"></result>
+            <result column="ZHANLEI" property="ZHANLEI"></result>
+            <result column="DISHI" property="DISHI"></result>
+            <result column="FENJU" property="FENJU"></result>
+            <result column="DIZHI" property="DIZHI"></result>
+        </association>
+    </resultMap>
+
+    <select id="findMaxYuliang" resultMap="st_soil_rMap">
+        select
+            st_b."zhanming",
+            st_b.dizhi,
+            max(st_s.col007) as COL007
+        from ST_SITINFO_B st_b,st_soil_r st_s WHERE st_b.zhanma = st_s.col001
+        GROUP BY st_b."zhanming",st_b.dizhi
+    </select>
+
+
+    <select id="findStatisticsInfo" resultType="yuliangStatisticInfo">
+        select
+        case
+        when col007 &lt;10 then
+        '小于10mm'
+        when col007 &gt;= 10 and col007 &lt;25 then
+        '10mm-25mm'
+        when col007 &gt;= 25 and col007 &lt;50 then
+        '25mm-50mm'
+        when col007 &gt;= 50 and col007 &lt;100 then
+        '50mm-100mm'
+        when col007 &gt;= 100 and col007 &lt;250 then
+        '100mm-250mm'
+        when col007 &gt;= 250 then
+        '大于250mm'
+        end as rank,
+        count(*) as count
+        from st_soil_r
+        GROUP BY
+        case
+        when col007 &lt;10 then
+        '小于10mm'
+        when col007 &gt;= 10 and col007 &lt;25 then
+        '10mm-25mm'
+        when col007 &gt;= 25 and col007 &lt;50 then
+        '25mm-50mm'
+        when col007 &gt;= 50 and col007 &lt;100 then
+        '50mm-100mm'
+        when col007 &gt;= 100 and col007 &lt;250 then
+        '100mm-250mm'
+        when col007 &gt;= 250 then
+        '大于250mm'
+        end
+    </select>
+
+</mapper>

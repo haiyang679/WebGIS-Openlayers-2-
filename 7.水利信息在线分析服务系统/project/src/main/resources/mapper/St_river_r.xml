@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.openlayers.action.dao.St_river_rDao">
+
+    <select id="findAll" resultMap="st_river_rMap">
+        select
+            st_b."zhanming",
+            st_b.ZHANMA,
+            st_r.rz,
+            st_r.otq,
+            TO_CHAR(st_r.TM, 'YYYY-MM-DD') AS TM,
+            st_b.dizhi,
+            st_b.DONGJING,
+            st_b.BEIWEI
+        from ST_SITINFO_B st_b,st_river_r st_r WHERE st_b.zhanma = st_r.stcd
+        order by st_b.ZHANMA,TM
+    </select>
+
+    <resultMap id="st_river_rMap" type="com.openlayers.action.entity.St_river_r">
+        <id column="STCD" property="STCD"></id>
+        <result column="TM" property="TM"></result>
+        <result column="RZ" property="RZ"></result>
+        <result column="OTQ" property="OTQ"></result>
+        <association property="st_sitinfo_b" javaType="com.openlayers.action.entity.St_sitinfo_b">
+            <id column="ZHANMA" property="ZHANMA"></id>
+            <result column="zhanming" property="zhanming"></result>
+            <result column="DONGJING" property="DONGJING"></result>
+            <result column="BEIWEI" property="BEIWEI"></result>
+            <result column="HEMING" property="HEMING"></result>
+            <result column="ZHANLEI" property="ZHANLEI"></result>
+            <result column="DISHI" property="DISHI"></result>
+            <result column="FENJU" property="FENJU"></result>
+            <result column="DIZHI" property="DIZHI"></result>
+        </association>
+    </resultMap>
+
+
+    <select id="findSt_river_rByZhanma" parameterType="String" resultMap="st_river_rMap">
+        select
+            st_b."zhanming",
+            st_b.ZHANMA,
+            st_r.rz,
+            st_r.otq,
+            TO_CHAR(st_r.TM, 'YYYY-MM-DD') AS TM,
+            st_b.dizhi
+        from ST_SITINFO_B st_b,st_river_r st_r WHERE st_b.zhanma = st_r.stcd
+        and zhanma = #{zhanma}
+    </select>
+
+</mapper>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.openlayers.action.dao.Wind_infoDao">
+
+    <select id="findAll" resultType="wind_info">
+        select * from WIND_INFO
+    </select>
+
+    <select id="findTmWindStrongWindspeed" resultType="wind_info">
+        select
+        TO_CHAR(tm, 'YYYY-MM-DD') AS TM,
+        windstrong,
+        windspeed from WIND_INFO
+    </select>
+
+</mapper>
