@@ -81,7 +81,7 @@ function addWaterMarker(resInfoArray,type) {
     //实时水情--河流信息可显示
     if (type == "marker_hl") {
         for (var i = 0; i < resInfoArray.length; i++) {
-            console.log(resInfoArray[i]);
+            //console.log(resInfoArray[i]);
             var lon = resInfoArray[i].st_sitinfo_b.dongjing; //X值
             var lat = resInfoArray[i].st_sitinfo_b.beiwei; //Y值
             var coordinate = [parseFloat(lon), parseFloat(lat)]; //坐标点（ol.coordinate）
@@ -632,7 +632,8 @@ function showRainInfo(data) {
     if (ssyqResInfoArray != null) {
         ssyqResInfoArray = new Array();
     }
-    ssyqResInfoArray = eval('(' + data + ')');
+    //ssyqResInfoArray = eval('(' + data + ')');
+    ssyqResInfoArray = eval(data);
     if (Ylxx_data == null || Ylxx_data == undefined || Ylxx_data.length <= 0) {
         Ylxx_data = ssyqResInfoArray;
     }
@@ -946,7 +947,8 @@ function clearSsyqMarker() {
 *@author fmm 2015-06-17
 */
 function tfljForcastOnsuccess(data) {
-    var resInfoArray = eval('(' + data + ')');
+    //var resInfoArray = eval('(' + data + ')');
+    var resInfoArray = eval(data);
     tfForcastInfoArray = resInfoArray;
 }
 
@@ -1381,7 +1383,7 @@ function drawTFForcastInfo() {
 *@author fmm 2015-06-18
 */
 function drawTFPathInfo(resInfoArray) {
-    if (tfljPathInfoLayer == null) {   //将台风路径信息图层加入到地图容器       
+    if (tfljPathInfoLayer == null) {   //将台风路径信息图层加入到地图容器
         tfljPathInfoLayer = new ol.layer.Vector({
             source: new ol.source.Vector()
         });
@@ -1404,7 +1406,7 @@ function drawTFPathInfo(resInfoArray) {
     }
     //将地图中心移到第一个点的位置，并将地图级数放大两级
     map.getView().setCenter([resInfoArray[0].jindu, resInfoArray[0].weidu]);
-    map.getView().setZoom(7);
+    map.getView().setZoom(1);
     //设置计时器动态绘制路径点与路径线
     var i = 0;
     tfInfoTimer = setInterval(function () {

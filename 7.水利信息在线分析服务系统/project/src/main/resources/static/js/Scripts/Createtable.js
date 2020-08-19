@@ -475,7 +475,7 @@ Table_yqLjtj = function () {
     return oTableInit;
 };
 
-//台风
+//台风基本信息表格
 Table_taifeng = function () {
     var oTableInit = new Object();
 
@@ -537,7 +537,8 @@ Table_taifeng = function () {
                 $("#taifeng_lujing").css("display", "block");
                 $(".tflj_label").css("display", "block");
                 //查询台风预测信息
-                var urlStr = encodeURI("Handler.ashx?method=tflj&oper=forcastInfo&tfID=" + "200813" + "&" + Math.random());
+                //var urlStr = encodeURI("Handler.ashx?method=tflj&oper=forcastInfo&tfID=" + "200813" + "&" + Math.random());
+                var urlStr = encodeURI("Wind_forecast");
                 $.ajax({
                     type: "get",
                     contentType: "application/json",

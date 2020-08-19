@@ -1,8 +1,10 @@
 package com.openlayers.action.controller;
 
 import com.openlayers.action.dao.Wind_basicInfoDao;
+import com.openlayers.action.dao.Wind_forecastDao;
 import com.openlayers.action.dao.Wind_infoDao;
 import com.openlayers.action.entity.Wind_basicInfo;
+import com.openlayers.action.entity.Wind_forecast;
 import com.openlayers.action.entity.Wind_info;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,23 +22,33 @@ public class Taifenglujing {
     @Resource
     private Wind_infoDao wind_infoDao;
 
+    @Resource
+    private Wind_forecastDao wind_forecastDao;
+
 
     //从台风基本信息表中查询台风基本数据
     @RequestMapping("/findWind_basicInfo")
     @ResponseBody
-    public List<Wind_basicInfo> findWind_basicInfo(){
+    public List<Wind_basicInfo> findWind_basicInfo() {
         List<Wind_basicInfo> wind_basicInfoList = wind_basicInfoDao.findAll();
         return wind_basicInfoList;
     }
 
 
-
     //从台风详细信息表中查询时间、风力和风速
     @ResponseBody
     @RequestMapping("/tmWindStrongWindspeed")
-    public List<Wind_info> findTmWindStrongWindspeed(){
+    public List<Wind_info> findTmWindStrongWindspeed() {
         List<Wind_info> tmWindStrongWindspeed = wind_infoDao.findTmWindStrongWindspeed();
         return tmWindStrongWindspeed;
+    }
+
+    //台风预测信息
+    @ResponseBody
+    @RequestMapping("/Wind_forecast")
+    public List<Wind_forecast> findWind_forecast() {
+        List<Wind_forecast> wind_forecastDaoAll = wind_forecastDao.findAll();
+        return wind_forecastDaoAll;
     }
 
 

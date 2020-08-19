@@ -71,8 +71,8 @@ function init() {
         if (feature1) {
             var type = feature1.get('type');
             var info = feature1.get('info');
-            console.log(feature1.get('info'));
-            console.log(feature1.get('info').length);
+            //console.log(feature1.get('info'));
+            //console.log(feature1.get('info').length);
             if (type == "river") {
                 //水情-河流 Popup
                 showSssqPopup(info, "river");
