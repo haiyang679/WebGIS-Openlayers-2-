@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>通过改变图层的Z值，调整图层的覆盖关系</title>
+    <style>
+        .map {
+            width: 100%;
+            height:100%;
+        }
+    </style>
+    <link href="css/ol.css" type="text/css">
+    <script src="js/jquery-1.11.2.min.js" type="text/javascript"></script>
+    <script src="js/ol.js" type="text/javascript"></script>
+</head>
+
+<body>
+<div id="map" class="map"></div>
+<button id="QueryColaMarket" onclick="QueryColaMarket()">获取后端market数据</button>
+<button id="loadMap" onclick="loadMap()">加载底图</button>
+</body>
+<script type="application/javascript">
+
+    var shape;
+    var shapes = new Array();
+    function QueryColaMarket() {
+        $.ajax({
+            //请求方式
+            type: "get",
+            url: "/queryColaMarket",
+            //data: JSON.stringify(nameAndCoord),
+            contentType: "application/json;charsets=UTF-8",//必须
+            dataType: "json",//必须
+            success: function (data) { //回调函数，本次没用到
+                //console.log(data);
+                console.log("数据的长度"+data.length);  //3个几何
+                for(var i = 0;i<data.length;i++){
+                    var mk_id = data[i].mk_id;
+                    var name = data[i].name;
+                    shape = data[i].lonlatList;
+                    //console.log(mk_id);
+                    //console.log(name);
+                    //console.log(shape);
+                    shapes.push(shape);
+                    console.log(shapes);
+
+                }
+            }
+        });
+    };
+
+    function loadMap() {
+        //填充的颜色
+        var fill = new ol.style.Fill({
+            color: 'green'
+        });
+
+        //边界的颜色
+        var stroke = new ol.style.Stroke({
+            color: 'red',
+            width: 10
+        });
+
+        //将填充颜色和边界颜色组成style
+        var style = new ol.style.Style({
+            fill: fill,
+            stroke: stroke
+        });
+
+        var polygon0 = new ol.geom.Polygon([shapes[0]]);
+        var polygon1 = new ol.geom.Polygon([shapes[1]]);
+        var polygon2 = new ol.geom.Polygon([shapes[2]]);
+
+
+        //多边形要素类
+        var feature0 = new ol.Feature(polygon0);
+        var feature1 = new ol.Feature(polygon1);
+        var feature2 = new ol.Feature(polygon2);
+
+        //console.log(feature);
+
+
+        //矢量图层
+        var source =new ol.source.Vector();
+        //将多边形要素类添加到矢量图层中
+        source.addFeature(feature0);
+        source.addFeature(feature1);
+        source.addFeature(feature2);
+        var vector = new ol.layer.Vector({
+            source: source,
+            style: style
+        });
+
+        //瓦片底图，源为OSM底图
+        var raster = new ol.layer.Tile({
+            source: new ol.source.OSM(),
+        });
+        //初始化map，加到id = "map"的容器中进行显示
+        var map = new ol.Map({
+            layers: [raster],
+            target:'map',
+            view:new ol.View({
+                center:[0,0],
+                zoom:3,
+                //projection:'EPSG:3857',
+            }),
+        });
+        //动态添加矢量图层
+        map.addLayer(vector);
+    }
+
+</script>
+</html>

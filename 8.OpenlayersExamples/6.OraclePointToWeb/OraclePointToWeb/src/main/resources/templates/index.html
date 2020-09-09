@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>oracle中点显示在web</title>
+    <style>
+        .map {
+            width: 100%;
+            height:100%;
+        }
+        .ol-popup {
+            position: absolute;
+            background-color: white;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #cccccc;
+            bottom: 12px;
+            left: -50px;
+            min-width: 280px;
+        }
+        .ol-popup:after, .ol-popup:before {
+            top: 100%;
+            border: solid transparent;
+            content: " ";
+            height: 0;
+            width: 0;
+            position: absolute;
+            pointer-events: none;
+        }
+        .ol-popup:after {
+            border-top-color: white;
+            border-width: 10px;
+            left: 48px;
+            margin-left: -10px;
+        }
+        .ol-popup:before {
+            border-top-color: #cccccc;
+            border-width: 11px;
+            left: 48px;
+            margin-left: -11px;
+        }
+        .ol-popup-closer {
+            text-decoration: none;
+            position: absolute;
+            top: 2px;
+            right: 8px;
+        }
+        .ol-popup-closer:after {
+            content: "✖";
+        }
+    </style>
+    <link href="css/ol.css" type="text/css">
+    <script src="js/jquery-1.11.2.min.js" type="text/javascript"></script>
+    <script src="js/ol.js" type="text/javascript"></script>
+</head>
+
+<body>
+<div id="map" class="map">
+    <div id="popup" class="ol-popup"><!--Popup的目标容器-->
+        <a href="#" id="popup-closer" class="ol-popup-closer"></a><!--Popup关闭按钮-->
+        <div id="popup-content"></div><!--Popup的内容容器-->
+    </div>
+    <div id="mouse-position"><!--鼠标位置控件的容器，即所处的位置--></div>
+</div>
+<button id="PointDisplay" onclick="PointDisplay()">显示点</button>
+
+</body>
+<script type="application/javascript">
+
+    var featuresArray = new Array();
+
+   //实例化鼠标位置控件（MousePosition）
+    var mousePositionControl = new ol.control.MousePosition({
+        //坐标格式,将坐标保留4位小数位，并转换位字符串形式
+        coordinateFormat: ol.coordinate.createStringXY(4),
+        //地图投影坐标系（若未设置则输出为默认投影坐标系下的坐标）
+        projection: 'EPSG:4326',
+        //坐标信息显示样式类名，默认是'ol-mouse-position'
+        className: 'custom-mouse-position',
+        //显示鼠标位置信息的目标容器
+        target: document.getElementById('mouse-position'),
+        //未定义坐标的标记   显示空格
+        undefinedHTML: '&nbsp;'
+    });
+
+    //popup的元素
+    var container = document.getElementById('popup');
+    var content = document.getElementById('popup-content');
+    var closer = document.getElementById('popup-closer');
+
+    //覆盖层
+    var overlay = new ol.Overlay({
+        element: container,
+    });
+
+    //popup关闭的操作函数
+    closer.onclick = function () {
+        overlay.setPosition(undefined);
+        closer.blur();
+        return false;
+    };
+
+
+    //瓦片底图，源为OSM底图
+    var raster = new ol.layer.Tile({
+        source: new ol.source.OSM(),
+    });
+    //初始化map，加到id = "map"的容器中进行显示
+    var map = new ol.Map({
+        layers: [raster],
+        target:'map',
+        overlays:[overlay],
+        view:new ol.View({
+            center:[0,0],
+            zoom:3,
+            projection:'EPSG:3857',
+        }),
+        controls: ol.control.defaults({//地图中默认控件
+            /* @type {ol.control.Attribution} */
+            attributionOptions: ({
+                //地图数据源信息控件是否可收缩,默认为true
+                collapsible: true
+            })
+        }).extend([mousePositionControl])//加载鼠标位置控件
+    });
+
+    map.on('singleclick', function (evt) {
+        //coordinate是一个经纬度坐标的数组，0为经度，1为纬度
+        var coordinate = evt.coordinate;
+        //console.log(coordinate);
+        //console.log(coordinate.type);
+
+        //var lnt = coordinate[0].toString().substr(0,8);
+        var lnt = coordinate[0].toString();
+        lnt = (lnt * 180 / 20037508.34).toString().substr(0,8);
+
+        //var lat = coordinate[1].toString().substr(0,8);
+        var lat = coordinate[1].toString();
+        lat = 180 / Math.PI * (2 * Math.atan(Math.exp((lat / 20037508.34) * Math.PI)) - Math.PI / 2);
+        lat = lat.toString().substr(0,8);
+        var feature = map.forEachFeatureAtPixel(evt.pixel, function (feature, layer) {
+            //在视口中遍历所有具有像素颜色的图层，如果图层存在，则返回
+            return feature;
+        });
+        console.log(feature);
+        if(feature === undefined && feature == null){   //没有要素点
+            content.innerHTML = '<p>You clicked here:</p><code>' + 'lnt:'+lnt+'<br>'+'lat:'+lat + '</code>';
+            overlay.setPosition(coordinate);   //设置overlay显示的位置，点击哪个位置，显示在哪个位置上
+        }else {  //有要素点
+            var city = feature.values_.city;
+            var number = feature.values_.number;
+            content.innerHTML = '<p>You clicked here:</p><code>' + 'lnt:'+lnt+'<br>'+'lat:'+lat + '<br>'+
+                'city:'+city+'<br>'+'number'+number+
+                '</code>';
+            overlay.setPosition(coordinate);   //设置overlay显示的位置，点击哪个位置，显示在哪个位置上
+        }
+
+    });
+
+
+    function PointDisplay() {
+        $.ajax({
+            //请求方式
+            type: "get",
+            url: "/queryLocations",
+            //data: JSON.stringify(nameAndCoord),
+            contentType: "application/json;charsets=UTF-8",//必须
+            dataType: "json",//必须
+            success: function (data) { //回调函数
+                //console.log(data);
+                console.log("数据的长度"+data.length);  //3个几何
+                for(var i = 0;i<data.length;i++){
+                    var lat = parseFloat(data[i].lat);
+                    var lon = parseFloat(data[i].lon);
+                    var city = data[i].city;
+                    var number = data[i].number;
+                    /*console.log(lat);
+                    console.log(lon);
+                    console.log(city);
+                    console.log(number);*/
+
+                    //创建点
+                    //var point = new ol.geom.Point(ol.proj.fromLonLat([lon,lat]),'EPSG:4326');
+                    var point = new ol.geom.Point(ol.proj.fromLonLat([lon,lat]));
+
+                    //用点创建要素
+                    var feature = new ol.Feature({
+                        geometry: point,
+                        city: city,
+                        number: number
+                    });
+
+                    //将点要素放入要素数组中
+                    featuresArray.push(feature);
+
+                }
+                console.log(featuresArray);
+
+                //矢量图层
+                var source =new ol.source.Vector({
+                    features: featuresArray
+                });
+
+                var vector = new ol.layer.Vector({
+                    source: source,
+                    style: new ol.style.Style({
+                        image: new ol.style.Circle({
+                            radius: 5,
+                            fill: new ol.style.Fill({
+                                color: 'red'
+                            }),
+                            stroke: new ol.style.Stroke({
+                                color: 'green',
+                                size: 1
+                            })
+                        })
+                    })
+                });
+
+                //动态添加矢量图层
+                map.addLayer(vector);
+            }
+        });
+    };
+
+
+
+
+
+
+</script>
+</html>
